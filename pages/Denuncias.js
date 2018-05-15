@@ -16,16 +16,15 @@ export default class Denuncias extends Component<{}> {
         super(props)
         this.state = {
             descricao: '',
-            lat: null,
-            lon: null,
+            descricaoLocal: '',
             error: null
         }
     }
     componentDidMount(){
         navigator.geolocation.getCurrentPosition(pos=>{
+            let descricaoLocal = `Latitude: ${pos.coords.latitude}\nLongitude: ${pos.coords.longitude}`
             this.setState({
-                lat: pos.coords.latitude,
-                lon: pos.coords.longitude
+               descricaoLocal
             })
         },err=>{
             this.setState({
@@ -44,8 +43,20 @@ export default class Denuncias extends Component<{}> {
                         value={this.state.descricao}
                         onChangeText={descricao => this.setState({descricao})}
                         multiline={true}
-                        placeholder={!!this.state.error ? 'Digite a Descrição da denúncia e Endereço' : 'Digite a Descrição da denúncia'}
+                        placeholder={'Digite a Descrição da denúncia'}
                     />
+                    {
+                        !!this.state.error && 
+                        <View>
+                            <Text style={{ fontSize: 16, marginBottom: 5 }}>Descrição do Local ou Ative o GPS</Text>
+                            <TextInput style={styles.inputs}
+                                value={this.state.descricaoLocal}
+                                onChangeText={descricaoLocal => this.setState({ descricaoLocal })}
+                                multiline={true}
+                                placeholder={'Digite o Local denunciado'}
+                            />
+                        </View>
+                    }
                     <Btn
                         style={{ backgroundColor: "#ddd", marginTop: 15 }}
                         onPress={() => null}
@@ -60,16 +71,18 @@ export default class Denuncias extends Component<{}> {
                         text='Denunciar'
                         style={{ backgroundColor: "#F65454", marginTop: 20 }}
                         onPress={() => {
-                            alert(this.state.descricao + '\n' + 'lat' + this.state.lat + '\n' + 'lon' + this.state.lon)
+                            if(this.state.descricao == ''){
+                                return alert('Digite a Descrição')
+                            }
+                            fetch('http://10.0.2.2:80/anjos_server/denuncias', {
+                                method: 'POST',
+                                body:JSON.stringify({
+                                    descricao: this.state.descricao,
+                                    descricao_local: this.state.descricaoLocal
+                                })
+                            }).then(()=> this.setState({descricao: '', descricaoLocal: ''})).catch(e=> alert('Ocorreu um Problema Ligue a Internet e/ou Tente mais tarde'))
                         }}
                     />
-                    {
-                        /*
-                        <Text style={{ fontSize:16 }}>Latitude: {this.state.lat}</Text>
-                        <Text style={{ fontSize: 16 }}>Longitude: {this.state.lon}</Text>
-                        <Text style={{ fontSize: 16 }}>{this.state.error}</Text>
-                        */
-                    }
                 </View>
             </View>
         )

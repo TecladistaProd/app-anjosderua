@@ -8,11 +8,13 @@ import {
     Button,
     TouchableOpacity,
     TextInput,
+    AsyncStorage,
     ActivityIndicator
 } from 'react-native'
 
 import Btn from '../components/Btn'
 import { Icon } from 'react-native-elements'
+import CKM from 'react-native-cookies'
 
 export default class Home extends Component<{}> {
     constructor(props) {
@@ -61,9 +63,22 @@ export default class Home extends Component<{}> {
                     </View>
                     <Btn style={styles.loginBtn} text='Entrar'
                         onPress={() =>{
-                            this.setState({logando: !this.state.logando})
-                            let url = 'http://10.0.2.2:80/anjos_server/authentication'
-                            this.setState({logando: false, login: '', senha: '', mostraSenha: false})
+                            this.setState({logando: true})
+                            let url = 'http://10.0.2.2:80/anjos_server/authentication',
+                                body = JSON.stringify({login: this.state.login, password: this.state.senha})
+                            fetch(url, {
+                                method: 'POST',
+                                body
+                            })
+                                .then(res=> res.json())
+                                .then(async res=>{
+                                    let obj = JSON.parse(res.data.response)
+                                    this.setState({ logando: false, mostraSenha: false, login: '', senha: '' })
+                                    try{
+                                        await AsyncStorage.setItem('@anjos_de_rua:token', obj.token)
+                                    }catch(err){}
+                                })  
+                                .catch(err => this.setState({ logando: false, mostraSenha: false }))
                         }}
                     />
                     <Btn style={{backgroundColor: "#ffee33", marginBottom: 10}} text='Limpar Campos'
