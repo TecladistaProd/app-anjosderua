@@ -80,7 +80,9 @@ export default class Denuncias extends Component<{}> {
                                     descricao: this.state.descricao,
                                     descricao_local: this.state.descricaoLocal
                                 })
-                            }).then(()=> this.setState({descricao: '', descricaoLocal: ''})).catch(e=> alert('Ocorreu um Problema Ligue a Internet e/ou Tente mais tarde'))
+                            }).then(e=> e.json()).then(e=> {
+                                this.setState({descricao: '', descricaoLocal: ''})
+                            }).catch(e=> alert('Ocorreu um Problema Ligue a Internet e/ou Tente mais tarde'))
                         }}
                     />
                 </View>
