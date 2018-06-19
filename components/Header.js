@@ -4,7 +4,8 @@ import {
     StyleSheet,
     Text,
     TouchableOpacity,
-    View
+    View,
+    AsyncStorage
 } from 'react-native'
 
 import { Icon } from 'react-native-elements'
@@ -32,12 +33,22 @@ export default class Header extends Component<{}> {
                     </View>
                 </TouchableOpacity>
                 <Text style={styles.fonte}>Anjos de Rua</Text>
-                <TouchableOpacity style={styles.linkPad}>
+                <TouchableOpacity style={styles.linkPad}
+                    disabled={!!!this.props.token}
+                    onPress={async()=>{
+                       try{
+                           await AsyncStorage.removeItem('@anjos_de_rua:token')
+                           await AsyncStorage.removeItem('@anjos_de_rua:login')
+                           await AsyncStorage.removeItem('@anjos_de_rua:adocaoid')
+                           this.props.exit()
+                       }catch(err){} 
+                    }}
+                >
                     <Icon
                         name='power-off'
                         type='font-awesome'
-                        color='#ff3333'
-                    />
+                        color={!!this.props.token ? '#ff3333' : '#ccc'}
+                />
                 </TouchableOpacity>
             </View> 
         )

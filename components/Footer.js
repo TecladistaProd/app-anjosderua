@@ -2,8 +2,8 @@ import React, { Component } from 'react'
 
 import {
     StyleSheet,
-    Text,
     TouchableOpacity,
+    Linking,
     View
 } from 'react-native'
 
@@ -23,28 +23,24 @@ export default class Footer extends Component<{}> {
     render() {
         return (
             <View style={styles.container}>
+                { !!!this.props.token && 
                 <Link to='/' onPress={this.props.home} style={styles.linkPad} disabled={this.props.pagina === 'Home'}>
                     <Icon
                         name='sign-in'
                         type='font-awesome'
-                        color={(this.props.pagina === 'Home' && this.state.color) || '#1E90FF'}
+                        color={(this.props.pagina === '' && this.state.color) || '#1E90FF'}
                     />
                 </Link>
-                <Link to='/acompanhamento' onPress={this.props.acompanhamento} style={styles.linkPad} disabled={this.props.pagina === 'Acompanhamento'}>
+                }
+                { !!this.props.token && 
+                <Link to='/' onPress={this.props.acompanhamento} style={styles.linkPad} disabled={this.props.pagina === 'Acompanhamento'}>
                     <Icon
                         name='baidu'
                         type='entypo'
-                        color={(this.props.pagina === 'Acompanhamento' && this.state.color) || '#cd853f'}
+                        color={(this.props.pagina === '' && this.state.color) || '#cd853f'}
                     />
                 </Link>
-                <Link to='/doacoes' onPress={this.props.doacoes} style={styles.linkPad} disabled={this.props.pagina === 'Doacoes'}>
-                    <Icon
-                        name='attach-money'
-                        type='material'
-                        size={26}
-                        color={(this.props.pagina === 'Doacoes' && this.state.color) || '#228b22'}
-                    />
-                </Link>
+                }
                 <Link to='/denuncias' onPress={this.props.denuncias} style={styles.linkPad} disabled={this.props.pagina === 'Denuncias'}>
                     <Icon
                         name='alert'
@@ -52,6 +48,16 @@ export default class Footer extends Component<{}> {
                         color={(this.props.pagina === 'Denuncias' && this.state.color) || '#FFaf00'}
                     />
                 </Link>
+                <TouchableOpacity style={styles.linkPad} onPress={()=>{
+                    Linking.openURL('https://pagseguro.uol.com.br/checkout/v2/donation.html?currency=BRL&receiverEmail=klerisonpe@gmail.com&iot=button')
+                }}>
+                    <Icon
+                        name='attach-money'
+                        type='material'
+                        size={26}
+                        color='#228b22'
+                    />
+                </TouchableOpacity>
             </View> 
         )
     }
@@ -65,7 +71,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-around',
-        backgroundColor: '#eee'
+        backgroundColor: '#fff'
     },
     fonte: {
         fontSize: 20

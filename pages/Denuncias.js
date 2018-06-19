@@ -17,14 +17,15 @@ export default class Denuncias extends Component<{}> {
         this.state = {
             descricao: '',
             descricaoLocal: '',
+            descricaoLocalGPS: '',
             error: null
         }
     }
     componentDidMount(){
         navigator.geolocation.getCurrentPosition(pos=>{
-            let descricaoLocal = `Latitude: ${pos.coords.latitude}\nLongitude: ${pos.coords.longitude}`
+            let descricaoLocalGPS = `https://www.google.com/maps/place/${pos.coords.latitude},${pos.coords.longitude}`
             this.setState({
-               descricaoLocal
+               descricaoLocalGPS
             })
         },err=>{
             this.setState({
@@ -45,46 +46,36 @@ export default class Denuncias extends Component<{}> {
                         multiline={true}
                         placeholder={'Digite a Descrição da denúncia'}
                     />
-                    {
-                        !!this.state.error && 
-                        <View>
-                            <Text style={{ fontSize: 16, marginBottom: 5 }}>Descrição do Local ou Ative o GPS</Text>
-                            <TextInput style={styles.inputs}
-                                value={this.state.descricaoLocal}
-                                onChangeText={descricaoLocal => this.setState({ descricaoLocal })}
-                                multiline={true}
-                                placeholder={'Digite o Local denunciado'}
-                            />
-                        </View>
-                    }
-                    <Btn
-                        style={{ backgroundColor: "#ddd", marginTop: 15 }}
-                        onPress={() => null}
-                    >
-                        <Icon
-                            name='camera'
-                            type='entypo'
-                            color='#333'
+                    <View>
+                        <Text style={{ fontSize: 16, marginBottom: 5 }}>Descrição do Local</Text>
+                        <TextInput style={styles.inputs}
+                            value={this.state.descricaoLocal}
+                            onChangeText={descricaoLocal => this.setState({ descricaoLocal })}
+                            multiline={true}
+                            placeholder={'Digite o Local denunciado'}
                         />
-                    </Btn>
+                    </View>
                     <Btn
                         text='Denunciar'
                         style={{ backgroundColor: "#F65454", marginTop: 20 }}
                         onPress={() => {
-                            if(this.state.descricao == ''){
-                                return alert('Digite a Descrição')
+                            if(this.state.descricao == '' || this.state.descricaoLocal == ''){
+                                return alert('Digite a Descrição e Local')
                             }
-                            fetch('http://10.0.2.2:80/anjos_server/denuncias', {
+                            fetch('http://soriano.esy.es/denuncias', {
                                 method: 'POST',
                                 body:JSON.stringify({
+                                    delator: 'Anônimo',
                                     descricao: this.state.descricao,
-                                    descricao_local: this.state.descricaoLocal
+                                    descricao_local: this.state.descricaoLocal + ' \r\n' + this.state.descricaoLocalGPS
                                 })
                             }).then(e=> e.json()).then(e=> {
                                 this.setState({descricao: '', descricaoLocal: ''})
+                                alert(JSON.stringify(e, null, 4))
                             }).catch(e=> alert('Ocorreu um Problema Ligue a Internet e/ou Tente mais tarde'))
                         }}
                     />
+                    <Text style={{ fontSize: 14, marginBottom: 5, color: '#aaa' }}>*Adicione Também a descrição do local</Text>
                 </View>
             </View>
         )

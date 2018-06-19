@@ -5,17 +5,14 @@ import {
     StyleSheet,
     Text,
     View,
-    ScrollView,
-    PanResponder,
-    TouchableOpacity,
-    Animated
+    FlatList,
+    TouchableOpacity
 } from 'react-native'
 
 export default class MyModal extends Component<{}>{
     constructor(props){
         super(props)
         this.state = {
-            trx: new Animated.Value(1),
             notifications: [
                 {
                     titulo: 'Meu Titulo 1',
@@ -45,33 +42,6 @@ export default class MyModal extends Component<{}>{
         }
     }
 
-
-    _panResponder = PanResponder.create({
-        onMoveShouldSetResponderCapture: () => true,
-
-        onMoveShouldSetPanResponderCapture: () => true,
-
-        onPanResponderMove: Animated.event([null, { dx: this.translateX }]),
-
-        onPanResponderRelease: (e, { vx, dx }) => {
-
-            const screenWidth = (Dimensions.get("window").width)/2
-
-            if (Math.abs(vx) >= 0.5 || Math.abs(dx) >= 0.5 * screenWidth) {
-                Animated.timing(this.translateX, {
-                    toValue: dx > 0 ? screenWidth : -screenWidth,
-                    duration: 200
-                }).start(this.props.onDismiss)
-            } else {
-                Animated.spring(this.translateX, {
-                    toValue: 0,
-                    bounciness: 10
-                }).start()
-            }
-        }
-        
-    })
-
     render(){
         return(
             <Modal
@@ -84,20 +54,37 @@ export default class MyModal extends Component<{}>{
                         <TouchableOpacity onPress={this.props.fecharModal} style={styles.modalFecha}>
                             <Text style={styles.modalFechaX}>X</Text>
                         </TouchableOpacity>
-                        <ScrollView style={{flex:1, width:'90%', alignSelf: 'center'}}>
-                            {this.state.notifications.map((item, key)=>{
+                        <FlatList
+                            style={{alignSelf: 'center', marginLeft: -10}}
+                            data={this.state.notifications}
+                            renderItem={(item, key)=>{
+                                item = item.item
                                 return(
-                                    <Animated.View style={[styles.notificationBox, {transform: [{ translateX: this.state.trx }]}]} {...this._panResponder.panHandler} key={key}>
-                                        <Text style={styles.notificationTitle}>
-                                            {item.titulo}
-                                        </Text>
-                                        <Text style={styles.notificationTexto}>
-                                            {item.texto}
-                                        </Text>
-                                    </Animated.View>
+                                <View style={styles.notificationBox}
+                                    key={key}
+                                >
+                                    <TouchableOpacity
+                                        onPress={()=>{
+                                            let arr = this.state.notifications
+                                            arr.splice(key, 1)
+                                            this.setState({notifications: arr})
+                                        }}
+                                    >
+                                            <Text style={styles.notificationX}>
+                                                X
+                                            </Text>
+                                    </TouchableOpacity>
+                                    <Text style={styles.notificationTitle}>
+                                        {item.titulo}
+                                    </Text>
+                                    <Text style={styles.notificationTexto}>
+                                        {item.texto}
+                                    </Text>
+                                </View>
                                 )
-                            })}
-                        </ScrollView>
+                            }}
+                            keyExtractor={(item, key) => item + key}
+                        />
                     </View>
                 </View>
             </Modal>
@@ -117,7 +104,7 @@ const styles = StyleSheet.create({
         padding: 20,
         backgroundColor: '#fff',
         borderRadius: 20,
-        minHeight: 30,
+        minHeight: 20,
         width: '75%',
         maxHeight: '70%',
         alignSelf: 'center',
@@ -137,10 +124,13 @@ const styles = StyleSheet.create({
     },
     notificationBox: {
         flex: 1,
-        padding: 10,
-        width: 250,
-        borderBottomColor: '#777',
-        borderBottomWidth: 0.5,
+        padding: 12,
+        marginHorizontal: 20,
+        marginVertical: 5,
+        maxWidth: '95%',
+        borderColor: '#777',
+        borderRadius: 2, 
+        borderWidth: 0.5,
         marginBottom: 5
     },
     notificationTitle: {
@@ -150,6 +140,12 @@ const styles = StyleSheet.create({
     notificationTexto: {
         fontSize: 16,
         color: '#555'
+    },
+    notificationX: {
+        alignSelf: 'flex-end',
+        top: -2,
+        left: 2,
+        padding: 10
     }
 })
 

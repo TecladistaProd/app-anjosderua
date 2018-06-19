@@ -2648,7 +2648,7 @@ inquirer@^3.0.6:
     strip-ansi "^4.0.0"
     through "^2.3.6"
 
-invariant@^2.1.0, invariant@^2.2.0, invariant@^2.2.1, invariant@^2.2.2:
+invariant@^2.2.0, invariant@^2.2.1, invariant@^2.2.2:
   version "2.2.4"
   resolved "https://registry.yarnpkg.com/invariant/-/invariant-2.2.4.tgz#610f3c92c9359ce1db616e538008d23ff35158e6"
   dependencies:
@@ -4381,19 +4381,6 @@ react-devtools-core@3.1.0:
 react-is@^16.3.1:
   version "16.3.1"
   resolved "https://registry.yarnpkg.com/react-is/-/react-is-16.3.1.tgz#ee66e6d8283224a83b3030e110056798488359ba"
-
-react-native-camera@^1.1.2:
-  version "1.1.2"
-  resolved "https://registry.yarnpkg.com/react-native-camera/-/react-native-camera-1.1.2.tgz#a93c389c522c8909c564f04c4a86072909259d07"
-  dependencies:
-    lodash "^4.17.4"
-    prop-types "^15.5.10"
-
-react-native-cookies@^3.3.0:
-  version "3.3.0"
-  resolved "https://registry.yarnpkg.com/react-native-cookies/-/react-native-cookies-3.3.0.tgz#527f65eb2d8a7a000107706bb11beb57f511e701"
-  dependencies:
-    invariant "^2.1.0"
 
 react-native-elements@^0.19.1:
   version "0.19.1"

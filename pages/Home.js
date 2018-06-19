@@ -5,23 +5,22 @@ import {
     StyleSheet,
     Text,
     View,
-    Button,
     TouchableOpacity,
     TextInput,
+    ToastAndroid,
     AsyncStorage,
     ActivityIndicator
 } from 'react-native'
 
 import Btn from '../components/Btn'
 import { Icon } from 'react-native-elements'
-import CKM from 'react-native-cookies'
 
 export default class Home extends Component<{}> {
     constructor(props) {
         super(props)
         this.state = {
-            login: 'luciano@verdureiro.com',
-            senha: '5550123',
+            login: '',
+            senha: '',
             mostraSenha: false,
             logando: false
         }
@@ -31,11 +30,12 @@ export default class Home extends Component<{}> {
             <View style={styles.container}>
                 <View style={styles.cabecalho}>
                     <Text style={styles.fontPadrao}>Adote esta Causa</Text>
+                    <Text>{this.state.token}</Text>
                 </View>
                 { !this.state.logando &&
                 <View style={styles.corpo}>
                     <Text style={{ fontSize: 16, marginBottom: 5 }}>Login:</Text>
-                    <TextInput style={styles.inputs} placeholder="Digite o Login" /*autoFocus*/ 
+                    <TextInput style={styles.inputs} placeholder="Digite o Login"
                         onChangeText={login=> this.setState({login})}
                         value={this.state.login}
                         autoCapitalize="none"
@@ -62,9 +62,9 @@ export default class Home extends Component<{}> {
                         </View>
                     </View>
                     <Btn style={styles.loginBtn} text='Entrar'
-                        onPress={() =>{
+                        onPress={async () =>{
                             this.setState({logando: true})
-                            let url = 'http://10.0.2.2:80/anjos_server/authentication',
+                            let url = 'http://soriano.esy.es/authentication',
                                 body = JSON.stringify({login: this.state.login, password: this.state.senha})
                             fetch(url, {
                                 method: 'POST',
@@ -72,16 +72,35 @@ export default class Home extends Component<{}> {
                             })
                                 .then(res=> res.json())
                                 .then(async res=>{
+                                    
                                     let obj = JSON.parse(res.data.response)
-                                    this.setState({ logando: false, mostraSenha: false, login: '', senha: '' })
+                                    if(obj == 401){
+                                        this.setState({ logando: false, mostraSenha: false, login: '', senha: '' })
+                                        return ToastAndroid.showWithGravity(
+                                            'Dados Inválidos',
+                                            ToastAndroid.LONG,
+                                            ToastAndroid.CENTER
+                                        )
+                                    }
                                     try{
-                                        await AsyncStorage.setItem('@anjos_de_rua:token', obj.token)
+                                        await AsyncStorage.setItem('@anjos_de_rua:login', body)
+                                        this.setState({ logando: false, mostraSenha: false, login: '', senha: '' })
+                                        let token = obj.token
+                                        await AsyncStorage.setItem('@anjos_de_rua:token', token)
+                                        this.props.enter()
                                     }catch(err){}
                                 })  
-                                .catch(err => this.setState({ logando: false, mostraSenha: false }))
+                                .catch(err =>{
+                                    this.setState({logando: false, mostraSenha: false})
+                                    ToastAndroid.showWithGravity(
+                                        'Problema com a Conexão',
+                                        ToastAndroid.LONG,
+                                        ToastAndroid.CENTER
+                                    )
+                                })
                         }}
                     />
-                    <Btn style={{backgroundColor: "#ffee33", marginBottom: 10}} text='Limpar Campos'
+                    <Btn style={{backgroundColor: "#ffdf63", marginBottom: 10}} text='Limpar Campos'
                         onPress={()=>{
                             this.setState({senha: '', login: ''})
                         }}

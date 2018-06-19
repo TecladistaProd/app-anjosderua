@@ -35,8 +35,8 @@ Gerencia de Projetos | https://trello.com/b/z5EaxWkK/anjos-de-rua
 
 
 ## Progresso
-- [ ] Login no App
-- [ ] Denúncia
+- [x] Login no App
+- [x] Denúncia
 - [ ] Chat com a ong
 - [ ] Doação
 - [ ] Compartilhar no facebook a cada nova adoção
@@ -46,7 +46,7 @@ Gerencia de Projetos | https://trello.com/b/z5EaxWkK/anjos-de-rua
 
 Desenvolvedor | Thumbnail
 --------- | ------:
-[Vitor](https://github.com/TecladistaProd) | <img src="https://avatars1.githubusercontent.com/u/26743405?s=460&v=4" width="100"/>
-
+[Vitor](https://github.com/TecladistaProd) | <img src="https://avatars1.githubusercontent.com/u/26743405?s=460&v=4" width="100"/>|
+[Leonardo Paulucci](https://www.facebook.com/leonardo.paulucci.18) | <img src="https://scontent.faqa1-1.fna.fbcdn.net/v/t1.0-9/27331686_1461177707325200_9193966199103387018_n.jpg?_nc_cat=0&oh=015526bdb297590eddb0bda201d21f10&oe=5B84804E" width="100"/>
 
 
