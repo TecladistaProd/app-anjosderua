@@ -49,7 +49,7 @@ export default class Footer extends Component<{}> {
                     />
                 </Link>
                 <TouchableOpacity style={styles.linkPad} onPress={()=>{
-                    Linking.openURL('https://pagseguro.uol.com.br/checkout/v2/donation.html?currency=BRL&receiverEmail=klerisonpe@gmail.com&iot=button')
+                    Linking.openURL('https://pagseguro.uol.com.br/checkout/v2/donation.html?currency=BRL&receiverEmail=anjosderuataquaritinga@hotmail.com&iot=button')
                 }}>
                     <Icon
                         name='attach-money'

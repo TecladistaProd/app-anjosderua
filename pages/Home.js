@@ -73,8 +73,8 @@ export default class Home extends Component<{}> {
                                 .then(res=> res.json())
                                 .then(async res=>{
                                     
-                                    let obj = JSON.parse(res.data.response)
-                                    if(obj == 401){
+                                    let obj = res.data
+                                    if(obj.response == 401){
                                         this.setState({ logando: false, mostraSenha: false, login: '', senha: '' })
                                         return ToastAndroid.showWithGravity(
                                             'Dados Inválidos',
@@ -87,6 +87,7 @@ export default class Home extends Component<{}> {
                                         this.setState({ logando: false, mostraSenha: false, login: '', senha: '' })
                                         let token = obj.token
                                         await AsyncStorage.setItem('@anjos_de_rua:token', token)
+                                        await AsyncStorage.setItem('@anjos_de_rua:ids', JSON.stringify({associado: obj.id_associado, adocao: obj.ids_adocoes[0].id}))
                                         this.props.enter()
                                     }catch(err){}
                                 })  

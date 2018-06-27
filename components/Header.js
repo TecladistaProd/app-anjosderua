@@ -22,14 +22,13 @@ export default class Header extends Component<{}> {
     render() {
         return (
             <View style={styles.container}>
-                <TouchableOpacity onPress={this.props.abrirModal} style={styles.linkPad}>
+                <TouchableOpacity onPress={this.props.abrirModal} style={styles.linkPad} disabled={!this.props.nt}>
                     <View style={styles.notification}>
                         <Icon
                             name='bell'
                             type='entypo'
-                            color='#ffba22'
+                            color={!!this.props.nt ? '#ffba22' : '#ccc'}
                         />
-                        <Text style={styles.notificationText}>3</Text>
                     </View>
                 </TouchableOpacity>
                 <Text style={styles.fonte}>Anjos de Rua</Text>
@@ -39,7 +38,8 @@ export default class Header extends Component<{}> {
                        try{
                            await AsyncStorage.removeItem('@anjos_de_rua:token')
                            await AsyncStorage.removeItem('@anjos_de_rua:login')
-                           await AsyncStorage.removeItem('@anjos_de_rua:adocaoid')
+                           await AsyncStorage.removeItem('@anjos_de_rua:ids')
+                           await AsyncStorage.removeItem('@anjos_de_rua:msgs')
                            this.props.exit()
                        }catch(err){} 
                     }}

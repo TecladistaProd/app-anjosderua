@@ -1,0 +1,1 @@
+Os dados do usuário e do aparelho do mesmo estão seguros dentro do próprio aparelho, e o aplicativo não o compartilhará com ninguém, apenas os dados de login será salvo para re-enviar aos servidor, e os dados do gps que será enviado quando o usuário denunciar

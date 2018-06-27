@@ -6,6 +6,7 @@ import {
     View,
     FlatList,
     TextInput,
+    ToastAndroid,
     AsyncStorage,
 } from 'react-native'
 
@@ -15,43 +16,85 @@ export default class MeuAnimal extends Component<{}> {
     constructor(props) {
         super(props)
         this.state = {
-            id: '',
+            ids: null,
             msg: '',
-            msgs: new Set()    
+            msgs: new Set()   
+        }
+    }
+    async recebeMensagem(n){
+        fetch(`http://soriano.esy.es/mensagens/adocao/${this.state.ids.adocao}`, {
+            headers: {
+                Authorization: this.props.token
+            },
+            method: 'GET'
+        }).then(e => e.json()).then(e => { 
+            e.data.sort((a, b) => {
+                if (+a.id < +b.id)
+                    return -1
+                else
+                    return 1
+            })
+            let x = new Set()
+            e.data.forEach(item => {
+                x.add({
+                    msg: item.mensagem,
+                    tp: item.remetente == 'admin' ? 1 : 2
+                })
+            })
+            fetch(`http://soriano.esy.es/mensagens/mensagens/visualizadas`, {
+                headers:{
+                    Authorization: this.props.token
+                },
+                method: 'PUT',
+                body: JSON.stringify({
+                    'id_adocao': this.state.ids.adocao,
+                    'remetenteAdmin': 1
+                })
+            })
+            this.setState({ msgs: x })
+        })
+        let ml = parseInt(await AsyncStorage.getItem('@anjos_de_rua:msgs'))
+        if (!ml || ml < [...this.state.msgs].length) {
+            await AsyncStorage.setItem('@anjos_de_rua:msgs', JSON.stringify([...this.state.msgs].length))
+            if (!n) {
+                this.props.novoNot(true)
+            }
         }
     }
     async componentDidMount(){  
         try {      
-            let req, id = AsyncStorage.getItem('@anjos_de_rua:adocaoid') || ''
-            this.setState({ id })
-            if(this.state.id == ''){
-                req = await fetch('http://soriano.esy.es/adocoes', {
-                    headers:{
-                        Authorization: this.props.token
-                    },
-                    method: 'GET'
-                })
-                req = await req.json()
-                let login = JSON.parse(await AsyncStorage.getItem('@anjos_de_rua:login')).login
-                req.data.forEach(async adocao=>{
-                    if(adocao.associado.email == login){
-                        await AsyncStorage.setItem('@anjos_de_rua:adocaoid', adocao.id)
-                        this.setState({id: adocao.id})
-                    }
-                })
+            let ids = await AsyncStorage.getItem('@anjos_de_rua:ids') || ''
+            if(ids != ''){
+                ids = JSON.parse(ids)
+                this.setState({ ids })
             }
-            fetch('http://soriano.esy.es/mensagens/adocao/'+this.state.id, {
-                headers: {
-                    Authorization: this.props.token
-                }
-            }).then(json => json.json())
-            .then(r=>{
-                alert(JSON.stringify({ r, Authorization: this.props.token, url: 'http://soriano.esy.es/mensagens/adocao/'+this.state.id}, null, 4))
+            if (!!!this.state.ids){
+                let body = await AsyncStorage.getItem('@anjos_de_rua:login')
+                let dados = await fetch('http://soriano.esy.es/authentication', {
+                    method: 'POST',
+                    body
+                })
+                dados = await dados.json()
+                let obj = await dados.data
+                if (!(obj.response == 401)) {
+                    await AsyncStorage.setItem('@anjos_de_rua:ids', JSON.stringify({ associado: obj.id_associado, adocao: obj.ids_adocoes[0].id }))
+                    this.setState({ ids: { associado: obj.id_associado, adocao: obj.ids_adocoes[0].id }})
+                } 
+            }
+            this.recebeMensagem()
+            this.setState({
+                interval: setInterval(()=> this.recebeMensagem(), 3000)
             })
-            // alert('http://soriano.esy.es/mensagens/adocao/' + this.state.id)
         } catch (err) {
-            //
+            ToastAndroid.showWithGravity(
+                'Ocorreu um Problema',
+                ToastAndroid.LONG,
+                ToastAndroid.CENTER
+            )
         }
+    }
+    componentWillUnmount(){
+        clearInterval(this.state.interval)
     }
     render() {
         return (
@@ -81,14 +124,32 @@ export default class MeuAnimal extends Component<{}> {
                     />
                     <Btn
                         style={{ backgroundColor: "#33cf3a", marginTop: 16 }}
-                        onPress={() =>{
-                            this.setState({
-                                msgs: new Set([...this.state.msgs, { tp:2, msg: this.state.msg } ]),
-                                    msg: ''
+                        onPress={async () =>{
+                            try{
+                                let login = JSON.parse(await AsyncStorage.getItem('@anjos_de_rua:login')).login
+                                fetch('http://soriano.esy.es/mensagens', {
+                                    headers: {
+                                        Authorization: this.props.token,
+                                        'Content-Type': 'application/json'
+                                    },
+                                    method: 'POST',
+                                    body: JSON.stringify({
+                                        id_adocao:	this.state.ids.adocao,
+                                        mensagem: this.state.msg,
+                                        remetente: login
+                                    })
+                                }).then(()=> {
+                                    this.recebeMensagem(1)
+                                    this.setState({ msg: '' })
                                 })
-                            setTimeout(()=>{
-                                this.setState({ msgs: new Set([...this.state.msgs, { tp:1, msg: 'Resposta da ong' }]) })
-                                }, 1200)
+                            } catch(err) {
+                                ToastAndroid.showWithGravity(
+                                    'Ocorreu um Problema tente mais tarde',
+                                    ToastAndroid.LONG,
+                                    ToastAndroid.CENTER
+                                )
+                                this.setState({ msg: '' })
+                            }
                         }}
                         text='Enviar'
                     /> 

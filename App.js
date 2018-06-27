@@ -32,7 +32,8 @@ export default class App extends Component<{}> {
       splash: true,
       pagina: '',
       token: null,
-      modalVisible: false
+      modalVisible: false,
+      not: false
     }
   }
 
@@ -48,17 +49,13 @@ export default class App extends Component<{}> {
           body
         })
         dados = await dados.json()
-        let obj = await JSON.parse(dados.data.response)
-        if (obj == 401) {
+        let obj = await dados.data
+        if (obj.response == 401) {
           this.setState({ splash: false, token:null })
-          return ToastAndroid.showWithGravity(
-            'Dados Inválidos',
-            ToastAndroid.LONG,
-            ToastAndroid.CENTER
-          )
         }
         let token = obj.token
         await AsyncStorage.setItem('@anjos_de_rua:token', token)
+        await AsyncStorage.setItem('@anjos_de_rua:ids', JSON.stringify({ associado: obj.id_associado, adocao: obj.ids_adocoes[0].id }))
         this.setState({token})
         setTimeout(() => this.setState({ splash: false }),500)
       } 
@@ -77,11 +74,12 @@ export default class App extends Component<{}> {
     return (
       <NativeRouter>
         <View style={styles.container}>
-          <MyModal visible={this.state.modalVisible} fecharModal={()=> this.setState({modalVisible: false})}/>
+          <MyModal visible={this.state.modalVisible} fecharModal={() => this.setState({ modalVisible: false, not: false})}/>
           <Header
             abrirModal={()=> this.setState({modalVisible: true})}  
             token={this.state.token}
             exit={()=> this.setState({token: null})}
+            nt={this.state.not}
           />
           <View style={{flex:1, padding:3, justifyContent:'center'}}>
             {!!!this.state.token &&
@@ -94,7 +92,9 @@ export default class App extends Component<{}> {
             }
             {!!this.state.token &&
               <Route exact path='/' render={()=>
-                <MeuAnimal token={this.state.token} />
+                <MeuAnimal token={this.state.token}
+                  novoNot={not=> this.setState({not})}
+                />
               }/>
             }
             <Route path='/denuncias' component={Denuncias}/>
